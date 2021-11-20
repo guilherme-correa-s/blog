@@ -1,5 +1,6 @@
 ﻿using System;
 using Blog.Models;
+using Blog.Repositories;
 using Dapper.Contrib.Extensions;
 using Microsoft.Data.SqlClient;
 
@@ -10,38 +11,38 @@ namespace Blog
         private const string CONNECTION_STRING = @"Server=localhost,1433;Database=Blog;User ID=sa;Password=220894gui123C/;Trust Server Certificate = true";
         static void Main(string[] args)
         {
-            ReadUsers();
-            ReadUser();
-            CreateUser();
-            UpdateUser();
-            DeleteUser();
+            using var connection = new SqlConnection(CONNECTION_STRING);
+
+            connection.Open();
+
+            ReadUsers(connection);
+            ReadUser(connection);
+            CreateUser(connection);
+
+            connection.Close();
         }
 
-        public static void ReadUsers()
+        public static void ReadUsers(SqlConnection connection)
         {
-            using (var connection = new SqlConnection(CONNECTION_STRING))
-            {
-                var users = connection.GetAll<User>();
+            var repository = new UserRepository(connection);
 
-                foreach (var user in users)
-                {
-                    Console.WriteLine(user.Name);
-                }
-            }
+            var users = repository.GetAll();
+
+            foreach (var user in users)
+                Console.WriteLine(user.Email);
         }
 
-        public static void ReadUser()
+        public static void ReadUser(SqlConnection connection)
         {
-            using (var connection = new SqlConnection(CONNECTION_STRING))
-            {
-                var user = connection.Get<User>(1);
+            var repository = new UserRepository(connection);
 
-                Console.WriteLine(user.Name);
+            var user = repository.GetOne(1);
 
-            }
+            Console.WriteLine(user.Name);
+
         }
 
-        public static void CreateUser()
+        public static void CreateUser(SqlConnection connection)
         {
             var user = new User()
             {
@@ -53,47 +54,9 @@ namespace Blog
                 Slug = "leticia-c"
             };
 
-            using (var connection = new SqlConnection(CONNECTION_STRING))
-            {
-                connection.Insert<User>(user);
-
-                Console.WriteLine("Cadastro realizado com sucesso");
-
-            }
-        }
-
-        public static void UpdateUser()
-        {
-            var user = new User()
-            {
-                Id = 2,
-                Name = "Leticia Correa",
-                Email = "l@h.com.br",
-                Bio = "bio update",
-                Image = "https://imgurl",
-                PasswordHash = "hashpassword",
-                Slug = "leticia-correa"
-            };
-
-            using (var connection = new SqlConnection(CONNECTION_STRING))
-            {
-                connection.Update<User>(user);
-
-                Console.WriteLine("Cadastro atualizado com sucesso");
-
-            }
-        }
-
-        public static void DeleteUser()
-        {
-            using (var connection = new SqlConnection(CONNECTION_STRING))
-            {
-                var user = connection.Get<User>(2);
-                connection.Delete<User>(user);
-
-                Console.WriteLine("Cadastro deletado com sucesso");
-
-            }
+            var repository = new UserRepository(connection);
+            repository.Create(user);
+            Console.WriteLine("Cadastro realizado com sucesso");
         }
     }
 }

@@ -15,9 +15,15 @@ namespace Blog
 
             connection.Open();
 
-            ReadUsers(connection);
-            ReadUser(connection);
-            CreateUser(connection);
+            // ReadUsers(connection);
+            // ReadUser(connection);
+            // CreateUser(connection);
+
+            // CreateRole(connection);
+            // UpdateRole(connection);
+            // GetAllRoles(connection);
+            // GetRole(connection);
+            DeleteRole(connection);
 
             connection.Close();
         }
@@ -57,6 +63,59 @@ namespace Blog
             var repository = new UserRepository(connection);
             repository.Create(user);
             Console.WriteLine("Cadastro realizado com sucesso");
+        }
+
+        public static void CreateRole(SqlConnection connection)
+        {
+            var role = new Role()
+            {
+                Name = "ADMIN",
+                Slug = "admin"
+            };
+
+            var repository = new Repository<Role>(connection);
+
+            repository.Create(role);
+        }
+
+        public static void GetAllRoles(SqlConnection connection)
+        {
+            var repository = new Repository<Role>(connection);
+
+            var roles = repository.GetAll();
+
+            foreach (var role in roles)
+                Console.WriteLine(role.Name);
+        }
+
+        public static void GetRole(SqlConnection connection)
+        {
+            var repository = new Repository<Role>(connection);
+
+            var role = repository.Get(1);
+
+            Console.WriteLine(role.Name);
+        }
+
+        public static void UpdateRole(SqlConnection connection)
+        {
+            var role = new Role()
+            {
+                Id = 1,
+                Name = "USER",
+                Slug = "user"
+            };
+
+            var repository = new Repository<Role>(connection);
+
+            repository.Update(role);
+        }
+
+        public static void DeleteRole(SqlConnection connection)
+        {
+            var repository = new Repository<Role>(connection);
+
+            repository.Delete(1);
         }
     }
 }

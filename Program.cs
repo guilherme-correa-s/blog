@@ -1,7 +1,4 @@
-﻿using System;
-using Blog.Models;
-using Blog.Repositories;
-using Dapper.Contrib.Extensions;
+﻿using Blog.Screens.UsersScreens;
 using Microsoft.Data.SqlClient;
 
 namespace Blog
@@ -11,111 +8,42 @@ namespace Blog
         private const string CONNECTION_STRING = @"Server=localhost,1433;Database=Blog;User ID=sa;Password=220894gui123C/;Trust Server Certificate = true";
         static void Main(string[] args)
         {
-            using var connection = new SqlConnection(CONNECTION_STRING);
+            DataBase.Connection = new SqlConnection(CONNECTION_STRING);
+            DataBase.Connection.Open();
 
-            connection.Open();
+            Load();
 
-            // ReadUsers(connection);
-            // ReadUser(connection);
-            // CreateUser(connection);
-
-            // CreateRole(connection);
-            // UpdateRole(connection);
-            // GetAllRoles(connection);
-            // GetRole(connection);
-            DeleteRole(connection);
-
-            connection.Close();
-        }
-
-        public static void ReadUsers(SqlConnection connection)
-        {
-            var repository = new UserRepository(connection);
-
-            var users = repository.GetAll();
-
-            foreach (var user in users)
-                Console.WriteLine(user.Email);
-        }
-
-        public static void ReadUser(SqlConnection connection)
-        {
-            var repository = new UserRepository(connection);
-
-            var user = repository.GetOne(1);
-
-            Console.WriteLine(user.Name);
+            DataBase.Connection.Close();
 
         }
 
-        public static void CreateUser(SqlConnection connection)
+        public static void Load()
         {
-            var user = new User()
+            Console.Clear();
+            Console.WriteLine("------- Gestão Blog -------");
+            Console.WriteLine("----------------------------");
+            Console.WriteLine("Opções: ");
+            Console.WriteLine();
+            Console.WriteLine("1 - Gestão Usuários");
+            Console.WriteLine("2 - Gestão Tags");
+            Console.WriteLine("3 - Gestão Category");
+            Console.WriteLine("4 - Sair");
+            Console.WriteLine("----------------------------");
+            var option = short.Parse(Console.ReadLine()!);
+
+            switch (option)
             {
-                Name = "Leticia C",
-                Email = "l@h.com.br",
-                Bio = "bio",
-                Image = "https://imgurl",
-                PasswordHash = "hashpassword",
-                Slug = "leticia-c"
-            };
+                case 1:
+                    MenuUserScreen.Load();
+                    break;
 
-            var repository = new UserRepository(connection);
-            repository.Create(user);
-            Console.WriteLine("Cadastro realizado com sucesso");
-        }
+                case 4:
+                    return;
 
-        public static void CreateRole(SqlConnection connection)
-        {
-            var role = new Role()
-            {
-                Name = "ADMIN",
-                Slug = "admin"
-            };
-
-            var repository = new Repository<Role>(connection);
-
-            repository.Create(role);
-        }
-
-        public static void GetAllRoles(SqlConnection connection)
-        {
-            var repository = new Repository<Role>(connection);
-
-            var roles = repository.GetAll();
-
-            foreach (var role in roles)
-                Console.WriteLine(role.Name);
-        }
-
-        public static void GetRole(SqlConnection connection)
-        {
-            var repository = new Repository<Role>(connection);
-
-            var role = repository.Get(1);
-
-            Console.WriteLine(role.Name);
-        }
-
-        public static void UpdateRole(SqlConnection connection)
-        {
-            var role = new Role()
-            {
-                Id = 1,
-                Name = "USER",
-                Slug = "user"
-            };
-
-            var repository = new Repository<Role>(connection);
-
-            repository.Update(role);
-        }
-
-        public static void DeleteRole(SqlConnection connection)
-        {
-            var repository = new Repository<Role>(connection);
-
-            repository.Delete(1);
+                default:
+                    Load();
+                    break;
+            }
         }
     }
 }
